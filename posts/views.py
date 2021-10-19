@@ -10,22 +10,22 @@ class PostView(View):
     @login_decorator
     def post(self, request):
         try:
-            data = json.loads(request.body)
-            user = request.user
-            title = data['title']
+            data    = json.loads(request.body)
+            user    = request.user
+            title   = data['title']
             content = data['content']
 
             post = Post.objects.create(
                 username = user.name,
-                title = title,
-                content = content,
-                user = user
+                title    = title,
+                content  = content,
+                user     = user
             )
 
             Result = {
-                "title" : post.title,
-                "username": user.name,
-                "content": post.content,
+                "title"     : post.title,
+                "username"  : user.name,
+                "content"   : post.content,
                 "created_at": post.created_at.strftime('%Y-%m-%d %H:%M:%S')
             }
 
@@ -41,9 +41,9 @@ class PostView(View):
         post = Post.objects.get(id=post_id)
 
         Result = {
-            "username" : post.username,
-            "title" : post.title,
-            "content" : post.content,
+            "username"  : post.username,
+            "title"     : post.title,
+            "content"   : post.content,
             "created_at": post.created_at.strftime('%Y-%m-%d %H:%M:%S')
             }
 
@@ -57,9 +57,9 @@ class PostView(View):
             if not request.user == Post.objects.get(id=post_id).user:
                 return JsonResponse({"MESSAGE":"NOT_MATCHED_USER"}, status=400)
 
-            data = json.loads(request.body)
+            data    = json.loads(request.body)
             content = data['content']
-            post = Post.objects.filter(id=post_id, username=request.user.name)
+            post    = Post.objects.filter(id=post_id, username=request.user.name)
             post.update(content=content)
             
             return JsonResponse({"MESSAGE":"SUCCESS"}, status=201)
@@ -80,14 +80,14 @@ class PostView(View):
 
 class PostlistView(View):        
     def get(self, request):
-        limit = int(request.GET.get("limit",3))
+        limit  = int(request.GET.get("limit",3))
         offset = int(request.GET.get("offset",0))
-        posts = Post.objects.all()
+        posts  = Post.objects.all()
 
         Result = [{
-            "username" : post.username,
-            "title" : post.title,
-            "content" : post.content,
+            "username"  : post.username,
+            "title"     : post.title,
+            "content"   : post.content,
             "created_at": post.created_at.strftime('%Y-%m-%d %H:%M:%S')
             }for post in posts]
         

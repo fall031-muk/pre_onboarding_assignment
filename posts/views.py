@@ -15,35 +15,36 @@ class PostView(View):
             title = data['title']
             content = data['content']
 
-            Post.objects.create(
+            post = Post.objects.create(
                 username = user.name,
                 title = title,
                 content = content,
                 user = user
             )
-            post = Post.objects.all().last()
+
             Result = {
-                "title" : title,
+                "title" : post.title,
                 "username": user.name,
-                "content": content,
-                "created_at": post.created_at
+                "content": post.content,
+                "created_at": post.created_at.strftime('%Y-%m-%d %H:%M:%S')
             }
 
             return JsonResponse({"MESSAGE":"CREATE", "data":Result}, status=201)
+    
         except KeyError:
             return JsonResponse({"MESSAGE":"KEY_ERROR"}, status=400)
 
-    @login_decorator        
     def get(self, request, post_id):
         if not Post.objects.filter(id=post_id).exists():
-            return JsonResponse({"MESSAGE":"DOES_NOT_EXIST"}, status=400)
+            return JsonResponse({"MESSAGE":"DOES_NOT_EXIST"}, status=404)
         
         post = Post.objects.get(id=post_id)
 
         Result = {
             "username" : post.username,
             "title" : post.title,
-            "content" : post.content
+            "content" : post.content,
+            "created_at": post.created_at.strftime('%Y-%m-%d %H:%M:%S')
             }
 
         return JsonResponse({"Result":Result}, status=200)
@@ -52,7 +53,7 @@ class PostView(View):
     def patch(self, request, post_id):
         try:
             if not Post.objects.filter(id=post_id).exists():
-                return JsonResponse({"MESSAGE":"DOES_NOT_EXIST"}, status=400)
+                return JsonResponse({"MESSAGE":"DOES_NOT_EXIST"}, status=404)
             if not request.user == Post.objects.get(id=post_id).user:
                 return JsonResponse({"MESSAGE":"NOT_MATCHED_USER"}, status=400)
 
@@ -69,25 +70,28 @@ class PostView(View):
     @login_decorator
     def delete(self, request, post_id):
         if not Post.objects.filter(id=post_id).exists():
-            return JsonResponse({"MESSAGE":"DOES_NOT_EXIST"}, status=400)
+            return JsonResponse({"MESSAGE":"DOES_NOT_EXIST"}, status=404)
         if not request.user == Post.objects.get(id=post_id).user:
-            return JsonResponse({"MESSAGE":"NOT_MATCHED_USER"}, status=400)
+            return JsonResponse({"MESSAGE":"NOT_MATCHED_USER"}, status=403)
         post = Post.objects.filter(id=post_id, username=request.user.name)
         post.delete()
         
         return JsonResponse({"MESSAGE":"DELETE"}, status=204)
 
-class PostlistView(View):
-    @login_decorator        
+class PostlistView(View):        
     def get(self, request):
         limit = int(request.GET.get("limit",3))
         offset = int(request.GET.get("offset",0))
         posts = Post.objects.all()
+
         Result = [{
             "username" : post.username,
             "title" : post.title,
             "content" : post.content,
-            "created_at" : post.created_at
+            "created_at": post.created_at.strftime('%Y-%m-%d %H:%M:%S')
             }for post in posts]
+        
+        Result = Result[offset:offset+limit]
+        count = len(Result)
 
-        return JsonResponse({"count":limit, "Result":Result[offset:offset+limit]}, status=200)
+        return JsonResponse({"count":count, "Result":Result}, status=200)

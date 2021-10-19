@@ -32,7 +32,7 @@ class SignupView(View):
 
             hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
             decoded_hashed_password = hashed_password.decode('utf-8')
-            print(decoded_hashed_password)
+            
             User.objects.create(
                 name           = data['name'],
                 email          = data['email'],
@@ -61,6 +61,5 @@ class LoginView(View):
             access_token = jwt.encode({'id':user.id}, SECRET_KEY, algorithm=ALGORITHM)
             return JsonResponse({"MESSAGE":"SUCCESS","ACCESS_TOKEN":access_token}, status=201)
                 
-            
         except KeyError:
             return JsonResponse({"MESSAGE":"KEY_ERROR"}, status=400)

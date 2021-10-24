@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.views import View
 
 from users.models import User
-from my_settings import SECRET_KEY, ALGORITHM
+from config.settings import SECRET_KEY
 
 class SignupView(View):
     def post(self, request):
@@ -58,7 +58,7 @@ class LoginView(View):
             if not bcrypt.checkpw(data['password'].encode('utf-8'), user.password.encode('utf-8')):
                 return JsonResponse({"MESSAGE":"INVALID_PASSWORD"}, status=401)
             
-            access_token = jwt.encode({'id':user.id}, SECRET_KEY, algorithm=ALGORITHM)
+            access_token = jwt.encode({'id':user.id}, SECRET_KEY, algorithm='HS256')
             return JsonResponse({"MESSAGE":"SUCCESS","ACCESS_TOKEN":access_token}, status=201)
                 
         except KeyError:

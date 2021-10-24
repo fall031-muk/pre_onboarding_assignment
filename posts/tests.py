@@ -7,7 +7,7 @@ from django.test import TestCase, Client
 from .models import Post
 from users.models import User
 
-from my_settings import SECRET_KEY, ALGORITHM
+from config.settings import SECRET_KEY
 
 class PostViewtest(TestCase):
     def setUp(self):
@@ -108,7 +108,7 @@ class PostViewtest(TestCase):
         User.objects.all().delete()
 
     def test_create_post_success(self):
-        access_token = jwt.encode({'id': 1}, SECRET_KEY, algorithm=ALGORITHM)
+        access_token = jwt.encode({'id': 1}, SECRET_KEY, algorithm='HS256')
         client = Client()
         header = {"HTTP_AUTHORIZATION": access_token}
         post = {
@@ -133,7 +133,7 @@ class PostViewtest(TestCase):
         )
 
     def test_create_key_error(self):
-        access_token = jwt.encode({'id': 1}, SECRET_KEY, algorithm=ALGORITHM)
+        access_token = jwt.encode({'id': 1}, SECRET_KEY, algorithm='HS256')
         client = Client()
         header = {"HTTP_AUTHORIZATION": access_token}
         post = {
@@ -207,7 +207,7 @@ class PostViewtest(TestCase):
         self.assertEqual(response.json(), {"MESSAGE": "DOES_NOT_EXIST"})
 
     def test_edit_not_matched_user(self):
-        access_token = jwt.encode({"id": 2}, SECRET_KEY, algorithm=ALGORITHM)
+        access_token = jwt.encode({"id": 2}, SECRET_KEY, algorithm='HS256')
         client = Client()
 
         header = {"HTTP_AUTHORIZATION": access_token}
@@ -222,7 +222,7 @@ class PostViewtest(TestCase):
         self.assertEqual(response.json(), {"MESSAGE": "NOT_MATCHED_USER"})
 
     def test_post_edit_success(self):
-        access_token = jwt.encode({"id": 1}, SECRET_KEY, algorithm=ALGORITHM)
+        access_token = jwt.encode({"id": 1}, SECRET_KEY, algorithm='HS256')
         client = Client()
 
         header = {"HTTP_AUTHORIZATION": access_token}
@@ -237,7 +237,7 @@ class PostViewtest(TestCase):
         self.assertEqual(response.json(), {"MESSAGE": "SUCCESS"})
 
     def test_post_edit_key_error(self):
-        access_token = jwt.encode({"id": 1}, SECRET_KEY, algorithm=ALGORITHM)
+        access_token = jwt.encode({"id": 1}, SECRET_KEY, algorithm='HS256')
         client = Client()
 
         header = {"HTTP_AUTHORIZATION": access_token}
@@ -252,7 +252,7 @@ class PostViewtest(TestCase):
         self.assertEqual(response.json(), {"MESSAGE": "KEY_ERROR"})
 
     def test_post_edit_does_not_exist(self):
-        access_token = jwt.encode({"id": 1}, SECRET_KEY, algorithm=ALGORITHM)
+        access_token = jwt.encode({"id": 1}, SECRET_KEY, algorithm='HS256')
         client = Client()
 
         header = {"HTTP_AUTHORIZATION": access_token}
@@ -267,7 +267,7 @@ class PostViewtest(TestCase):
         self.assertEqual(response.json(), {"MESSAGE": "DOES_NOT_EXIST"})
 
     def test_post_delete_not_authorization_user(self):
-        access_token = jwt.encode({"id": 2}, SECRET_KEY, algorithm=ALGORITHM)
+        access_token = jwt.encode({"id": 2}, SECRET_KEY, algorithm='HS256')
         client = Client()
 
         header = {"HTTP_AUTHORIZATION": access_token}
@@ -277,7 +277,7 @@ class PostViewtest(TestCase):
         self.assertEqual(response.json(), {"MESSAGE": "NOT_MATCHED_USER"})
 
     def test_post_delete_success(self):
-        access_token = jwt.encode({"id": 1}, SECRET_KEY, algorithm=ALGORITHM)
+        access_token = jwt.encode({"id": 1}, SECRET_KEY, algorithm='HS256')
         client = Client()
 
         header = {"HTTP_AUTHORIZATION": access_token}
@@ -286,7 +286,7 @@ class PostViewtest(TestCase):
         self.assertEqual(response.status_code, 204)
 
     def test_post_delete_does_not_exist(self):
-        access_token = jwt.encode({"id": 1}, SECRET_KEY, algorithm=ALGORITHM)
+        access_token = jwt.encode({"id": 1}, SECRET_KEY, algorithm='HS256')
         client = Client()
 
         header = {"HTTP_AUTHORIZATION": access_token}
